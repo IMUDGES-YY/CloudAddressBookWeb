@@ -43,7 +43,7 @@ public class SendMessage {
             return null;
         }
         createCheckCode();
-        String content = "【宠爱】您的验证码为" + getCheckCode() + ",在10分钟内有效";
+        String content = "【云通讯录】您的验证码为" + getCheckCode() + ",在10分钟内有效";
         String USERNAME = Config.SMS_USERNAME;
         String PASSWORD = MD5.getMd5(Config.SMS_PASSWORD);
         String CONTENT = Toolkit.encodeUrlString(content,"UTF-8");

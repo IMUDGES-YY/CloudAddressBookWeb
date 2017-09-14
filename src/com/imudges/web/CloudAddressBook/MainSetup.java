@@ -1,5 +1,6 @@
 package com.imudges.web.CloudAddressBook;
 
+import com.imudges.web.CloudAddressBook.Bean.User;
 import org.nutz.dao.Dao;
 import org.nutz.dao.util.Daos;
 import org.nutz.ioc.Ioc;
@@ -16,15 +17,14 @@ public class MainSetup implements Setup{
 
 
 
-//        //添加一个管理员
-//        if (dao.count(User.class) == 0) {
-//            User user = new User();
-//            user.setEmail("yangyang@imudges.com");
-//            user.setPassword("123");
-//            user.setSex(1);
-//            user.setPhoneNum("18647705052");
-//            dao.insert(user);
-//        }
+        //添加一个用户
+        if (dao.count(User.class) == 0) {
+            User user = new User();
+            user.setPassword("123");
+            user.setPhone("18647705052");
+            user.setUsername("admin");
+            dao.insert(user);
+        }
     }
 
     @Override
