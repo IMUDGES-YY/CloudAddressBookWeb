@@ -28,6 +28,17 @@ public class UserAndContacts {
     @Column("contacts_group")
     private String group;//群组
 
+    @Column
+    private int state;//状态 0 正常，-1 被删除
+
+    public int getState() {
+        return state;
+    }
+
+    public void setState(int state) {
+        this.state = state;
+    }
+
     public String getGroup() {
         return group;
     }

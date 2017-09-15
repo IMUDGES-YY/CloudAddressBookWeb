@@ -232,3 +232,46 @@
 }
 ```
 <br>
+
+### 修改用户联系人信息
+#### 地址：/change_contacts
+#### 请求参数：ak=[ak]&phone=[phone]&new_phone=[new_phone]&new_name=[new_name]&new_address=[new_address]&new_remarks=[new_remarks]&new_group=[new_group]
+#### ps：1、客户端注意检查想要删除的联系人的手机号的合法性，服务端也会检查。2、电话号和姓名不得为空。3、其他请求参数可以为空，但必须存在
+#### 成功返回样例：
+```json
+{
+    "ret":0,
+    "msg":"修改成功"
+}
+```
+
+#### 失败返回样例：
+```json
+{
+    "ret":-11,
+    "msg":"手机号非法"
+}
+```
+<br>
+
+### 删除联系人
+#### 地址：/delete_contacts
+#### 请求参数：ak=[ak]&phone=[phone]
+#### ps：1、客户端注意检查想要删除的联系人的手机号的合法性，服务端也会检查。
+#### 成功返回样例：
+```json
+{
+    "ret":0,
+    "msg":"删除成功"
+}
+```
+
+#### 失败返回样例：
+```json
+{
+    "ret":-12,
+    "msg":"此联系人不存在"
+}
+```
+<br>
+

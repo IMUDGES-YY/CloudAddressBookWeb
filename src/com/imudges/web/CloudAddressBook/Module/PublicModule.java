@@ -15,6 +15,7 @@ import org.nutz.mvc.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import javax.tools.Tool;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -342,9 +343,82 @@ public class PublicModule {
             return Toolkit.getFailResult(-4,new ConfigReader().read("-4"),null);
         }
 
-        List<UserAndContacts> list = dao.query(UserAndContacts.class,Cnd.where("userId","=",user.getId()));
+        List<UserAndContacts> list = dao.query(UserAndContacts.class,Cnd.where("userId","=",user.getId()).and("state","=","0"));
 
         return Toolkit.getSuccessResult("查询成功",list);
+    }
+
+    /**
+     * 修改联系人信息
+     * */
+    @At("/change_contacts")
+    @Ok("json")
+    @Fail("http:500")
+    public Object changeContacts(@Param("phone")String phone,
+                                 @Param("new_phone")String newPhone,
+                                 @Param("new_name")String name,
+                                 @Param("new_address")String newAddress,
+                                 @Param("new_remarks")String newRemarks,
+                                 @Param("new_group")String newGroup,
+                                 HttpSession session){
+        //判断参数合法性，手机号和姓名必须有
+        if(!Toolkit.checkStr(newPhone,1) || !Toolkit.checkStr(name,1)){
+            return Toolkit.getFailResult(-1,new ConfigReader().read("-1"),null);
+        }
+
+        //判断手机号合法性
+        if(!Toolkit.checkStr(phone,1) || !Toolkit.isChinaPhoneLegal(phone)){
+            return Toolkit.getFailResult(-11,new ConfigReader().read("-11"),null);
+        }
+
+        User user = (User) session.getAttribute("user");
+        if(user == null){
+            return Toolkit.getFailResult(-4,new ConfigReader().read("-4"),null);
+        }
+
+        //判断是否存在
+        UserAndContacts userAndContacts = dao.fetch(UserAndContacts.class,Cnd.where("userId","=",user.getId()).and("phone","=",phone));
+        if(userAndContacts != null){
+            //修改信息
+            userAndContacts.setPhone(newPhone);
+            userAndContacts.setName(name);
+            userAndContacts.setRemarks(newRemarks);
+            userAndContacts.setAddress(newAddress);
+            userAndContacts.setGroup(newGroup);
+            dao.update(userAndContacts);
+            return Toolkit.getSuccessResult("修改成功",null);
+        } else {
+            return Toolkit.getFailResult(-11,new ConfigReader().read("-11"),null);
+        }
+    }
+
+    /**
+     * 删除联系人
+     * */
+    @At("/delete_contracts")
+    @Ok("json")
+    @Fail("http:500")
+    public Object deleteContracts(HttpSession session,
+                                  @Param("phone")String phone){
+        User user = (User) session.getAttribute("user");
+        if(user == null){
+            return Toolkit.getFailResult(-4,new ConfigReader().read("-4"),null);
+        }
+
+        //判断手机号合法性
+        if(!Toolkit.checkStr(phone,1) || !Toolkit.isChinaPhoneLegal(phone)){
+            return Toolkit.getFailResult(-11,new ConfigReader().read("-11"),null);
+        }
+
+        UserAndContacts userAndContacts = dao.fetch(UserAndContacts.class,Cnd.where("phone","=",phone).and("state","=",0).desc("id"));
+        if(userAndContacts == null){
+            return Toolkit.getFailResult(-12,new ConfigReader().read("-12"),null);
+        }
+
+        userAndContacts.setState(-1);
+        dao.update(userAndContacts);
+
+        return Toolkit.getSuccessResult("删除成功",null);
     }
 
 }
