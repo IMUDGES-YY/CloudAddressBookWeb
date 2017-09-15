@@ -173,8 +173,8 @@
 
 ### 添加联系人
 #### 地址：/add_contacts
-#### 请求参数：phone=[phone]&ak=[ak]&name=[name]&address=[address]&remarks=[remarks]
-#### ps:地址和备注可以为空，名字不可为空
+#### 请求参数：phone=[phone]&ak=[ak]&name=[name]&address=[address]&remarks=[remarks]&group=[group]
+#### ps:1、地址和备注可以为空，名字不可为空  2、group为群组
 #### *请在客户端判断手机号合法性，当然服务器也会判断*
 #### 成功返回样例：
 ```json
@@ -189,6 +189,46 @@
 {
     "ret":-9,
     "msg":"添加用户的手机号码不存在"
+}
+```
+<br>
+
+
+### 获取用户联系人
+#### 地址：/get_contacts
+#### 请求参数：ak=[ak]
+#### 成功返回样例：
+```json
+{
+    "ret":0,
+    "msg":"查询成功",
+    "data":[
+        {
+            "Id":1,
+            "name":"杨洋大帅比",
+            "phone":"18647705052",
+            "userId":"1",
+            "address":"内大计算机学院",
+            "remarks":"nice"
+        },
+        {
+            "Id":2,
+            "name":"杨洋大帅比",
+            "phone":"18647705052",
+            "userId":"1",
+            "address":"内大计算机学院",
+            "remarks":"nice"
+        }
+    ]
+}
+```
+
+#### 失败返回样例：
+```json
+{
+    "ret":-4,
+    "msg":"登录状态无效",
+    "data":null
 }
 ```
 <br>

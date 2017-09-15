@@ -17,6 +17,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @IocBean
@@ -283,6 +284,7 @@ public class PublicModule {
                               @Param("name")String name,
                               @Param("address")String address,
                               @Param("remarks")String remarks,
+                              @Param("group")String group,
                               HttpSession session){
         NutMap result = null;
         int errorCode = 0;// -1为手机号不合法 -2为姓名为空
@@ -306,6 +308,7 @@ public class PublicModule {
             userAndContacts.setPhone(phone);
             userAndContacts.setRemarks(remarks);
             userAndContacts.setUserId(user.getId() + "");
+            userAndContacts.setGroup(group);
             dao.insert(userAndContacts);
         }
 
@@ -324,6 +327,24 @@ public class PublicModule {
                     break;
         }
         return result;
+    }
+
+    /**
+     * 获取联系人（当前用户的所有联系人）
+     * */
+    @At("/get_contacts")
+    @Ok("json")
+    @Fail("http:500")
+    public Object getContacts(HttpSession session){
+        User user = (User) session.getAttribute("user");
+
+        if (user == null) {
+            return Toolkit.getFailResult(-4,new ConfigReader().read("-4"),null);
+        }
+
+        List<UserAndContacts> list = dao.query(UserAndContacts.class,Cnd.where("userId","=",user.getId()));
+
+        return Toolkit.getSuccessResult("查询成功",list);
     }
 
 }
