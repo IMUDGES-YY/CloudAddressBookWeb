@@ -2,6 +2,7 @@ package com.imudges.web.CloudAddressBook.Module;
 
 import com.imudges.web.CloudAddressBook.Bean.SMSLog;
 import com.imudges.web.CloudAddressBook.Bean.User;
+import com.imudges.web.CloudAddressBook.Bean.UserAndContacts;
 import com.imudges.web.CloudAddressBook.Util.ConfigReader;
 import com.imudges.web.CloudAddressBook.Util.SendMessage;
 import com.imudges.web.CloudAddressBook.Util.Toolkit;
@@ -9,9 +10,11 @@ import org.nutz.dao.Cnd;
 import org.nutz.dao.Dao;
 import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
+import org.nutz.lang.util.NutMap;
 import org.nutz.mvc.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -268,6 +271,59 @@ public class PublicModule {
         } else {
             return Toolkit.getFailResult(-8,new ConfigReader().read("-8"),null);
         }
+    }
+
+    /**
+     * 添加联系人
+     * */
+    @At("/add_contacts")
+    @Ok("json")
+    @Fail("http:500")
+    public Object addContacts(@Param("phone")String phone,
+                              @Param("name")String name,
+                              @Param("address")String address,
+                              @Param("remarks")String remarks,
+                              HttpSession session){
+        NutMap result = null;
+        int errorCode = 0;// -1为手机号不合法 -2为姓名为空
+        //检查姓名是否合法
+        if(!Toolkit.checkStr(name,1)){
+            errorCode = -2;
+        }
+        //检查电话号码是否合法
+        if(!Toolkit.isChinaPhoneLegal(phone)){
+            errorCode = -1;
+        }
+
+        User user = (User) session.getAttribute("user");
+        if(user == null){
+            return Toolkit.getFailResult(-4,new ConfigReader().read("-4"),null);
+        }
+        if(errorCode == 0){
+            UserAndContacts userAndContacts = new UserAndContacts();
+            userAndContacts.setName(name);
+            userAndContacts.setAddress(address);
+            userAndContacts.setPhone(phone);
+            userAndContacts.setRemarks(remarks);
+            userAndContacts.setUserId(user.getId() + "");
+            dao.insert(userAndContacts);
+        }
+
+        switch (errorCode){
+            case 0:
+                result = Toolkit.getSuccessResult("添加成功",null);
+                break;
+            case -1:
+                result = Toolkit.getFailResult(-9, new ConfigReader().read("-9"),null);
+                break;
+            case -2:
+                result = Toolkit.getFailResult(-10, new ConfigReader().read("-10"),null);
+                break;
+            default:
+                result = Toolkit.getSuccessResult("添加成功",null);
+                    break;
+        }
+        return result;
     }
 
 }
