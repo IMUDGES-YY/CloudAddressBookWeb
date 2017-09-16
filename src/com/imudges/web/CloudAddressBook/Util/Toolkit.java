@@ -123,6 +123,10 @@ public class Toolkit {
     }
 
     //检查String 是否合法，tag 1 判空，0 不判空
+    /**
+     * true:合法
+     * false:非法
+     * */
     public static boolean checkStr(String str,int tag){
         boolean resTag = false;
         switch (tag){

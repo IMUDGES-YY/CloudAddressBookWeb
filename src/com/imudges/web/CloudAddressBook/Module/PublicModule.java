@@ -1,5 +1,6 @@
 package com.imudges.web.CloudAddressBook.Module;
 
+import com.imudges.web.CloudAddressBook.Bean.ContactsGroup;
 import com.imudges.web.CloudAddressBook.Bean.SMSLog;
 import com.imudges.web.CloudAddressBook.Bean.User;
 import com.imudges.web.CloudAddressBook.Bean.UserAndContacts;
@@ -309,8 +310,15 @@ public class PublicModule {
             userAndContacts.setPhone(phone);
             userAndContacts.setRemarks(remarks);
             userAndContacts.setUserId(user.getId() + "");
-            userAndContacts.setGroup(group);
             dao.insert(userAndContacts);
+
+            if(Toolkit.checkStr(group,1)){
+                ContactsGroup contactsGroup = new ContactsGroup();
+                contactsGroup.setContactsId(userAndContacts.getId() + "");
+                contactsGroup.setName(group);
+                contactsGroup.setUserId(user.getId() + "");
+                dao.insert(contactsGroup);
+            } else {}
         }
 
         switch (errorCode){
@@ -359,7 +367,6 @@ public class PublicModule {
                                  @Param("new_name")String name,
                                  @Param("new_address")String newAddress,
                                  @Param("new_remarks")String newRemarks,
-                                 @Param("new_group")String newGroup,
                                  HttpSession session){
         //判断参数合法性，手机号和姓名必须有
         if(!Toolkit.checkStr(newPhone,1) || !Toolkit.checkStr(name,1)){
@@ -384,8 +391,8 @@ public class PublicModule {
             userAndContacts.setName(name);
             userAndContacts.setRemarks(newRemarks);
             userAndContacts.setAddress(newAddress);
-            userAndContacts.setGroup(newGroup);
             dao.update(userAndContacts);
+            //TODO 添加分组消息
             return Toolkit.getSuccessResult("修改成功",null);
         } else {
             return Toolkit.getFailResult(-11,new ConfigReader().read("-11"),null);
@@ -420,5 +427,19 @@ public class PublicModule {
 
         return Toolkit.getSuccessResult("删除成功",null);
     }
+
+//    /**
+//     * 分组
+//     * */
+//    @At("/grouping")
+//    @Ok("json")
+//    @Fail("http:500")
+//    public Object grouping(@Param("content")String content,
+//                           HttpSession session){
+//        User user =
+//
+//
+//    }
+
 
 }

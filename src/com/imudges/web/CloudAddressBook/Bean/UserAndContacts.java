@@ -25,9 +25,6 @@ public class UserAndContacts {
     @Column
     private String remarks;//备注
 
-    @Column("contacts_group")
-    private String group;//群组
-
     @Column
     private int state;//状态 0 正常，-1 被删除
 
@@ -37,14 +34,6 @@ public class UserAndContacts {
 
     public void setState(int state) {
         this.state = state;
-    }
-
-    public String getGroup() {
-        return group;
-    }
-
-    public void setGroup(String group) {
-        this.group = group;
     }
 
     public String getName() {
