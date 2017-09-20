@@ -15,12 +15,6 @@ public class ContactsGroup {
     @Column
     private String name;//分组名
 
-    @Column("contacts_id")
-    private String contactsId;//联系人id
-
-    @Column("user_id")
-    private String userId;//对应用户的id
-
     @Column
     private String remarks;//备注
 
@@ -38,22 +32,6 @@ public class ContactsGroup {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public String getContactsId() {
-        return contactsId;
-    }
-
-    public void setContactsId(String contactsId) {
-        this.contactsId = contactsId;
-    }
-
-    public String getUserId() {
-        return userId;
-    }
-
-    public void setUserId(String userId) {
-        this.userId = userId;
     }
 
     public String getRemarks() {

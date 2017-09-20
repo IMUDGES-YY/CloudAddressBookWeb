@@ -1,9 +1,6 @@
 package com.imudges.web.CloudAddressBook.Module;
 
-import com.imudges.web.CloudAddressBook.Bean.ContactsGroup;
-import com.imudges.web.CloudAddressBook.Bean.SMSLog;
-import com.imudges.web.CloudAddressBook.Bean.User;
-import com.imudges.web.CloudAddressBook.Bean.UserAndContacts;
+import com.imudges.web.CloudAddressBook.Bean.*;
 import com.imudges.web.CloudAddressBook.Util.ConfigReader;
 import com.imudges.web.CloudAddressBook.Util.SendMessage;
 import com.imudges.web.CloudAddressBook.Util.Toolkit;
@@ -16,7 +13,6 @@ import org.nutz.mvc.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import javax.tools.Tool;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -313,11 +309,11 @@ public class PublicModule {
             dao.insert(userAndContacts);
 
             if(Toolkit.checkStr(group,1)){
-                ContactsGroup contactsGroup = new ContactsGroup();
-                contactsGroup.setContactsId(userAndContacts.getId() + "");
-                contactsGroup.setName(group);
-                contactsGroup.setUserId(user.getId() + "");
-                dao.insert(contactsGroup);
+//                ContactsGroup contactsGroup = new ContactsGroup();
+//                contactsGroup.setContactsId(userAndContacts.getId() + "");
+//                contactsGroup.setName(group);
+//                contactsGroup.setUserId(user.getId() + "");
+//                dao.insert(contactsGroup);
             } else {}
         }
 
@@ -428,18 +424,30 @@ public class PublicModule {
         return Toolkit.getSuccessResult("删除成功",null);
     }
 
-//    /**
-//     * 分组
-//     * */
-//    @At("/grouping")
-//    @Ok("json")
-//    @Fail("http:500")
-//    public Object grouping(@Param("content")String content,
-//                           HttpSession session){
-//        User user =
-//
-//
-//    }
+    /**
+     * 新建分组
+     * */
+    @At("/add_group")
+    @Ok("json")
+    @Fail("http:500")
+    public Object addGroup(@Param("name")String name,
+                           @Param("remarks")String remarks,
+                           HttpSession session){
+        User user = (User) session.getAttribute("user");
+
+        if(!Toolkit.checkStr(name,1)){
+            return Toolkit.getFailResult(-1,new ConfigReader().read("-1"),null);
+        }
+
+        ContactsGroup contactsGroup = new ContactsGroup();
+        contactsGroup.setName(name);
+        contactsGroup.setRemarks(remarks);
+        dao.insert(contactsGroup);
+        UserAndGroup userAndGroup = new UserAndGroup();
+        userAndGroup.setContactsId(contactsGroup.getId() + "");
+//        userAndGroup.setContactsId();
+        return null;
+    }
 
 
 }
