@@ -13,10 +13,21 @@ public class ContactsGroup {
     private int Id;
 
     @Column
+    private String userId;
+
+    @Column
     private String name;//分组名
 
     @Column
     private String remarks;//备注
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
 
     public int getId() {
         return Id;

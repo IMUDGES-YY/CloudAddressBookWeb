@@ -28,6 +28,17 @@ public class UserAndContacts {
     @Column
     private int state;//状态 0 正常，-1 被删除
 
+    @Column
+    private String groupId;//分组Id，可以为空
+
+    public String getGroupId() {
+        return groupId;
+    }
+
+    public void setGroupId(String groupId) {
+        this.groupId = groupId;
+    }
+
     public int getState() {
         return state;
     }

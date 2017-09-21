@@ -4,6 +4,7 @@ import com.imudges.web.CloudAddressBook.Bean.*;
 import com.imudges.web.CloudAddressBook.Util.ConfigReader;
 import com.imudges.web.CloudAddressBook.Util.SendMessage;
 import com.imudges.web.CloudAddressBook.Util.Toolkit;
+import com.sun.corba.se.impl.oa.toa.TOA;
 import org.nutz.dao.Cnd;
 import org.nutz.dao.Dao;
 import org.nutz.ioc.loader.annotation.Inject;
@@ -13,10 +14,7 @@ import org.nutz.mvc.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @IocBean
 @Fail("http:500")
@@ -73,6 +71,7 @@ public class PublicModule {
             return Toolkit.getFailResult(-3,new ConfigReader().read("-3"),null);
         }
         //TODO 参数重放
+
         return Toolkit.getSuccessResult("登陆成功",user);
     }
 
@@ -272,8 +271,9 @@ public class PublicModule {
         }
     }
 
+
     /**
-     * 添加联系人
+     * 添加联系人，如果此用户没有该分组，则会自动新建分组
      * */
     @At("/add_contacts")
     @Ok("json")
@@ -306,14 +306,21 @@ public class PublicModule {
             userAndContacts.setPhone(phone);
             userAndContacts.setRemarks(remarks);
             userAndContacts.setUserId(user.getId() + "");
-            dao.insert(userAndContacts);
 
             if(Toolkit.checkStr(group,1)){
-//                ContactsGroup contactsGroup = new ContactsGroup();
-//                contactsGroup.setContactsId(userAndContacts.getId() + "");
-//                contactsGroup.setName(group);
-//                contactsGroup.setUserId(user.getId() + "");
-//                dao.insert(contactsGroup);
+
+                ContactsGroup contactsGroup = dao.fetch(ContactsGroup.class,Cnd.where("userId","=",user.getId()).and("name","=",group));
+
+                if(contactsGroup == null){
+                    //新建分组
+                    contactsGroup = new ContactsGroup();
+                    contactsGroup.setName(group);
+                    contactsGroup.setUserId(user.getId() + "");
+                    dao.insert(contactsGroup);
+                }
+
+                userAndContacts.setGroupId(contactsGroup.getId() + "");
+                dao.insert(userAndContacts);
             } else {}
         }
 
@@ -335,6 +342,24 @@ public class PublicModule {
     }
 
     /**
+     * 获取分组信息
+     * */
+    @At("/get_group")
+    @Ok("json")
+    @Fail("http:500")
+    public Object getGroup(HttpSession session){
+        User user = (User) session.getAttribute("user");
+
+        List<ContactsGroup> contactsGroups = dao.query(ContactsGroup.class,Cnd.where("userId","=",user.getId()));
+        if(contactsGroups.size() == 0){
+            return Toolkit.getSuccessResult("没有分组信息",null);
+        } else {
+            return Toolkit.getSuccessResult("有分组信息",contactsGroups);
+        }
+    }
+
+
+    /**
      * 获取联系人（当前用户的所有联系人）
      * */
     @At("/get_contacts")
@@ -350,6 +375,32 @@ public class PublicModule {
         List<UserAndContacts> list = dao.query(UserAndContacts.class,Cnd.where("userId","=",user.getId()).and("state","=","0"));
 
         return Toolkit.getSuccessResult("查询成功",list);
+    }
+
+
+    /**
+     * 获取某一分组的所有联系人
+     * */
+    @At("/get_group_contacts")
+    @Ok("json")
+    @Fail("http:500")
+    public Object getGroupContacts(HttpSession session,
+                                   @Param("group")String group){
+        User user = (User) session.getAttribute("user");
+
+
+        ContactsGroup contactsGroups = dao.fetch(ContactsGroup.class, Cnd.where("userId","=",user.getId()).and("name","=",group));
+        if(contactsGroups == null){
+            return Toolkit.getSuccessResult("该用户没有此分组",null);
+        }
+
+        List<UserAndContacts> userAndContacts = dao.query(UserAndContacts.class,Cnd.where("groupId","=",contactsGroups.getId()).and("state","=","0"));
+
+        if(userAndContacts == null){
+            return Toolkit.getSuccessResult("该分组内没有联系人",null);
+        } else {
+            return Toolkit.getSuccessResult("查询成功",userAndContacts);
+        }
     }
 
     /**
@@ -388,12 +439,17 @@ public class PublicModule {
             userAndContacts.setRemarks(newRemarks);
             userAndContacts.setAddress(newAddress);
             dao.update(userAndContacts);
-            //TODO 添加分组消息
             return Toolkit.getSuccessResult("修改成功",null);
         } else {
             return Toolkit.getFailResult(-11,new ConfigReader().read("-11"),null);
         }
     }
+
+    //TODO
+    /**
+     * 修改联系人所在分组
+     * */
+
 
     /**
      * 删除联系人
@@ -439,15 +495,16 @@ public class PublicModule {
             return Toolkit.getFailResult(-1,new ConfigReader().read("-1"),null);
         }
 
+        ContactsGroup c = dao.fetch(ContactsGroup.class,Cnd.where("name","=",name));
+        if(c != null){
+            return Toolkit.getFailResult(-13,new ConfigReader().read("-13"),null);
+        }
+
         ContactsGroup contactsGroup = new ContactsGroup();
         contactsGroup.setName(name);
         contactsGroup.setRemarks(remarks);
+        contactsGroup.setUserId(user.getId() + "");
         dao.insert(contactsGroup);
-        UserAndGroup userAndGroup = new UserAndGroup();
-        userAndGroup.setContactsId(contactsGroup.getId() + "");
-//        userAndGroup.setContactsId();
-        return null;
+        return Toolkit.getSuccessResult("新建成功",null);
     }
-
-
 }
